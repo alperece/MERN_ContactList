@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<style>
+    body {
+                background-color: orange;
+                color: white;
+            }
+            h1 {
+                margin-top: 10rem;
+            }
+            form {
+                margin-bottom: 2rem;
+            }
+            .ul {
+                border-top: 1px solid white;
+                padding-top: 20px;
+            }
+
+            .li {
+                padding-left: 5px;
+                margin-bottom: 5px;
+                list-style-type: none;
+            }
+            img{
+                border-radius: 50%;
+                margin-right: 10px;
+                height: 42px;
+                width: 42px;
+            }
+            a{
+                color: white;
+                font-weight: bold;
+            }
+            a:hover{
+                color: #e3f2fd;
+                font-weight: bold;
+                text-decoration: none;
+            }
+
+        .row{
+            display: flex;
+            justify-content: center;
+            background-color: white;
+        }
+</style> 
+
+    
+</head>
+<body>
+
+    <div class="container">
+     
+
+        <%- include ("./edit.ejs") %>
+
+        <%- include ("./mail.ejs") %>
+
+        <!-- 1st Part : Form -->
+        <div class="container-fluid">
+            <row>
+                <h1 class="text-center">Enter your contact</h1>
+                <form class="col-xs-12 col-md-6 mx-auto" action="/newContact" method="POST" enctype="multipart/form-data">
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend"></div>
+                        <div class="input-group-text">...</div><input class="form-control" type="text" name="name" placeholder="Enter your contact's name" /></div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend"></div>
+                        <div class="input-group-text">@</div><input class="form-control" type="email" name="email" placeholder="Enter your contact's e-mail" /></div>
+                    <div class="input-group mb-1"><label class="custom-file-label" for="avatar">Choose file</label><input class="custom-file-input" id="avatar" type="file" name="avatar" multiple="multiple" /></div>
+                    <div class="input-group"><button class="btn btn-primary btn-block" type="submit">Submit</button></div>
+                </form>
+            </row>
+        </div>
+
+        <!-- 2 -->
+
+        <div class="row">
+
+      
+          <!-- 2nd Part: Table -->
+
+          <!-- LIST -->
+          <div class="col-md-12">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th>N°</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Avatar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% for(var i=0; i < contactData.length; i++) { %>
+                  <tr>
+
+                    <td><%= i + 1%></td>
+
+                    <td><strong><%= contactData[i].name %></strong></td>
+
+                    <td><%= contactData[i].mail %></td>
+
+                    <td>
+                        <img src="/uploads/avatars/<%= contactData[i].avatar %>"/>
+                      <!--   <strong><%= contactData[i].avatar %></strong> -->
+                    </td>
+            
+                    <td>
+
+                      <a
+                        class="<%= contactData[i].status ? 'btn btn-danger' : 'btn btn-success'%>"
+                        href="/sendMail/<%= contactData[i]._id %>" pato=contact.id data-toggle='modal' data-target='#emailModal'>Send ✉</a>
+
+                      <a href="/deleteContact/<%= contactData[i]._id %>"
+                        class="btn btn-dark">
+                        Delete ❌
+                      </a>
+
+                      <a href="/updateContact/<%= contactData[i]._id %>" class="btn btn-info"  pato=contact.id data-toggle='modal' data-target='#editModal' data-id="<%= contactData[i]._id %>">
+                        Edit ✏
+                      </a>
+
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+      
+          </div>
+        </div>
+      
+      </div>
+
+
+
+<script>
+/*    let mailPopUp = (id,photo, name, mail) => {
+            $('.mail').val(mail);
+            $('.name').text(name).val(name);
+            $('.userImg').attr('src',"/uploads/avatars/" + photo);
+            $('.idOfContact').val(id);
+            
+            console.log(name)
+          } */
+
+$('a').click(function (e) {
+  console.log(e);
+    e.preventDefault();
+    var tr = $(this).closest('input'),
+        modal = $('#editModal');
+    // make AJAX call passing the ID
+    $.getJSON('/updateContact/' + input.data('id'), function (data) {
+        // set values in modal
+        modal.find('form').attr('action', '/updateContact/' + input.data('id') );
+        modal.find('[name=name]').val( data.name );
+        // open modal
+        modal.modal('show');
+    });
+});
+</script>
+    
+</body>
+</html>
